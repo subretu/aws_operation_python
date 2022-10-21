@@ -45,9 +45,11 @@ def get_s3_object() -> dict:
     while True:
         for obj in response["Contents"]:
             if obj["Size"] == 0:
+                # フォルダ名からkeyを作成して初期化
                 s3_object_list[obj["Key"][:-1]] = []
 
             if obj["Size"] > 0:
+                # 該当するkeyのvalueにオブジェクトのキーを挿入
                 key = (re.search(r"(.*)(?=/)", obj["Key"])).group()
                 if key in s3_object_list.keys():
                     s3_object_list[key].append(obj["Key"])
@@ -90,12 +92,12 @@ def main() -> dict:
         item_dict = asdict(item)
         main_data.append(item_dict)
 
+    # 一致するデータのimg_listをS3オブジェクト一覧の該当する値に書き換え
     for i, item in enumerate(main_data):
         if item["name"] in s3_objects.keys():
             main_data[i]["img_list"] = s3_objects[item["name"]]
 
     response_data = {"hogehoge": main_data}
-
     return response_data
 
 
