@@ -14,6 +14,13 @@ class TestClasss:
     img_list: Optional[List[str]] = field(default=None)
 
 
+def main():
+    s3_objects = get_s3_object()
+    linkdata = link_to_s3object(s3_objects)
+
+    print(linkdata)
+
+
 def get_connection() -> psycopg2.connect:
     user = "postgres"
     pwd = "postgres"
@@ -65,10 +72,7 @@ def get_s3_object() -> dict:
     return s3_object_list
 
 
-def main() -> dict:
-    # S3オブジェクト一覧を取得
-    s3_objects = get_s3_object()
-
+def link_to_s3object(s3_objects: dict) -> dict:
     conn = get_connection()
     sql = """
         select
