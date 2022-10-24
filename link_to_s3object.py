@@ -1,7 +1,7 @@
 import boto3
 from dataclasses import asdict, dataclass, field
 from psycopg2.extras import RealDictCursor
-from typing import List, Optional
+from typing import List
 import psycopg2
 import re
 
@@ -11,7 +11,7 @@ class TestClasss:
     name: str
     date: str
     salary: int
-    img_list: Optional[List[str]] = field(default=None)
+    img_list: List[str] = field(default_factory=list)
 
 
 def main():
@@ -81,8 +81,6 @@ def link_to_s3object(s3_objects: dict) -> dict:
             ,salary
         from
             saki
-        limit
-            5
         ;
     """
     with conn.cursor(cursor_factory=RealDictCursor) as cursor:
