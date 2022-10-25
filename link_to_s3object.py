@@ -92,12 +92,10 @@ def link_to_s3object(s3_objects: dict) -> dict:
     # TestClasssクラスをdictにして書き換え
     for item in data:
         item_dict = asdict(item)
-        main_data.append(item_dict)
+        if item_dict["name"] in s3_objects.keys():
+            item_dict["img_list"] = s3_objects[item_dict["name"]]
 
-    # 一致するデータのimg_listをS3オブジェクト一覧の該当する値に書き換え
-    for i, item in enumerate(main_data):
-        if item["name"] in s3_objects.keys():
-            main_data[i]["img_list"] = s3_objects[item["name"]]
+        main_data.append(item_dict)
 
     response_data = {"hogehoge": main_data}
     return response_data
