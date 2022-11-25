@@ -33,7 +33,6 @@ def main():
 def create_data():
     conn = get_db_connection()
 
-    # レコードを挿入
     sql = """
     select
         opsdate::text
