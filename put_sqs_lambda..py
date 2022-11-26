@@ -76,7 +76,3 @@ def put_sqs(dict_data):
     sqsresponse = queue.send_message(MessageBody=json.dumps({"sample": dict_data[0]}))
 
     print(json.dumps(sqsresponse))
-
-
-if __name__ == "__main__":
-    main()
