@@ -13,34 +13,33 @@ df = pd.read_csv("./sample.csv")
 
 dict_alarm = {}
 dict_time = {}
+before_index = 0
 
 for index, row in df.iterrows():
     for alarm in row["alarm"].split(","):
-        if (MASTER.get(alarm) not in dict_alarm.keys()) and (
-            MASTER.get(alarm) not in dict_time.keys()
+        alarm_unit = MASTER.get(alarm)
+        if (alarm_unit not in dict_alarm.keys()) and (
+            alarm_unit not in dict_time.keys()
         ):
             # 最初に各keyを定義し値を設定していく
-            dict_alarm[MASTER.get(alarm)] = {}
-            dict_time[MASTER.get(alarm)] = {}
+            dict_alarm[alarm_unit] = {}
+            dict_time[alarm_unit] = {}
 
-            dict_alarm[MASTER.get(alarm)] = set()
-            dict_time[MASTER.get(alarm)] = 0
+            dict_alarm[alarm_unit] = set()
+            dict_time[alarm_unit] = 0
 
-            dict_alarm[MASTER.get(alarm)].add(alarm)
-            dict_time[MASTER.get(alarm)] = row["time_msec"]
+            dict_alarm[alarm_unit].add(alarm)
+            dict_time[alarm_unit] = row["time_msec"]
         # alarmが単一の場合
         elif len(row["alarm"].split(",")) == 1:
-            dict_alarm[MASTER.get(row["alarm"])].add(row["alarm"])
-            dict_time[MASTER.get(row["alarm"])] = (
-                dict_time[MASTER.get(row["alarm"])] + row["time_msec"]
-            )
+            dict_alarm[alarm_unit].add(row["alarm"])
+            dict_time[alarm_unit] = dict_time[alarm_unit] + row["time_msec"]
         else:
             # keyに重複がなければ値を変更する
-            dict_alarm[MASTER.get(alarm)].add(alarm)
-            if MASTER.get(alarm) not in dict_time.keys():
-                dict_time[MASTER.get(alarm)] = (
-                    dict_time[MASTER.get(alarm)] + row["time_msec"]
-                )
+            dict_alarm[alarm_unit].add(alarm)
+            if alarm_unit not in dict_time.keys() or index != before_index:
+                dict_time[alarm_unit] = dict_time[alarm_unit] + row["time_msec"]
+        before_index = index
 
 
 # 値の降順でソートし、dictを再作成
