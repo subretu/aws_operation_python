@@ -2,7 +2,7 @@ import requests
 
 url = "https://www.google.co.jp/search"
 
-# requestsは引数を2つ以上指定する必要あり
+# requestsは引数を2つ以上指定する必要があるのでカンマを入れる
 params = {
     "q": "日本代表",
 }
