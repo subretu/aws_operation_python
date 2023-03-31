@@ -13,6 +13,7 @@ for id in tareget_id:
     pass
 
 # 残りの行更新用のupdate文
+# 指定の開始番号が1出ない場合
 if start_num > 1:
     sql_1st = f"""
     update sample
@@ -39,7 +40,7 @@ if start_num > 1:
 
         print(sql_2st)
 # 指定の開始順番が1の場合
-else:
+elif start_num == 1:
     sql_1st = f"""
     update sample
       set
@@ -64,3 +65,5 @@ else:
         """
 
         print(sql_2st)
+else:
+    raise ValueError("Invalid start num.")
