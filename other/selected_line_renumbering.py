@@ -8,9 +8,9 @@ def main():
 def get_db_connection():
     connection = psycopg2.connect(
         host="localhost",
-        user="hoge",
-        password="hoge",
-        database="hoge",
+        user="postgres",
+        password="postgres",
+        database="postgres",
         port=5432,
     )
 
@@ -21,28 +21,23 @@ def excute_update():
     # 選択されたID
     tareget_id = ["e", "g", "i"]
     tareget_id_count = len(tareget_id)
+    # 対象IDの元の番号を取得（別途関数を用意）
+    tareget_id_num = [5, 7, 9]
 
     # 指定された開始の順番
     start_num = 3
-
-    # 対象IDの元の番号を取得（別途関数を用意）
-    tareget_id_num = [5, 7, 9]
 
     # taegetが該当する行のupdate文を作成
     update_sql_target = create_sql_target_row(tareget_id, start_num)
     # 残りの行を更新するupdate文を作成
     update_sql_other = create_sql_other_row(tareget_id_count, start_num, tareget_id_num)
 
-    print(update_sql_target)
-    print(update_sql_other)
-
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # 残りの行を更新するupdate文から実行
     cursor.execute(update_sql_other)
-
-    for sql in update_sql_target:
-        cursor.execute(sql)
+    cursor.execute(update_sql_target)
 
     conn.commit()
 
@@ -51,19 +46,30 @@ def excute_update():
 
 
 def create_sql_target_row(tareget_id, start_num):
-    sql_list = []
-    sql_list.append(f"update sample set num = {start_num} where id = 'e';")
-    sql_list.append(f"update sample set num = {start_num+1} where id = 'g';")
-    sql_list.append(f"update sample set num = {start_num+2} where id = 'i';")
+    sql_part_1st = """
+    update sample set num = case
+    """
+    sql_part_last = """
+    else num end
+    ;
+    """
 
-    return sql_list
+    sql_main = ""
+
+    for i, id in enumerate(tareget_id):
+        sql_main += f"""
+        when  id = '{id}' then {start_num} + {i}
+        """
+
+    sql = sql_part_1st + sql_main + sql_part_last
+
+    return sql
 
 
 def create_sql_other_row(tareget_id_count, start_num, tareget_id_num):
     sql_part_1st = """
     update sample set num = case
     """
-
     sql_part_last = """
     else num end
     ;
