@@ -2,7 +2,16 @@ import psycopg2
 
 
 def main():
-    excute_update()
+    # 選択されたID
+    tareget_id = ["e", "g", "i"]
+    tareget_id_count = len(tareget_id)
+    # 対象IDの元の番号を取得（別途関数を用意）
+    tareget_id_num = [5, 7, 9]
+
+    # 指定された開始の順番
+    start_num = 3
+
+    excute_update(tareget_id, tareget_id_count, tareget_id_num, start_num)
 
 
 def get_db_connection():
@@ -17,16 +26,7 @@ def get_db_connection():
     return connection
 
 
-def excute_update():
-    # 選択されたID
-    tareget_id = ["e", "g", "i"]
-    tareget_id_count = len(tareget_id)
-    # 対象IDの元の番号を取得（別途関数を用意）
-    tareget_id_num = [5, 7, 9]
-
-    # 指定された開始の順番
-    start_num = 3
-
+def excute_update(tareget_id, tareget_id_count, tareget_id_num, start_num):
     # taegetが該当する行のupdate文を作成
     update_sql_target = create_sql_target_row(tareget_id, start_num)
     # 残りの行を更新するupdate文を作成
