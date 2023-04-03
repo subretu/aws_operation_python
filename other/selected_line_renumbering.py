@@ -36,8 +36,8 @@ def excute_update(tareget_id, tareget_id_count, tareget_id_num, start_num):
     cursor = conn.cursor()
 
     # 残りの行を更新するupdate文から実行
-    cursor.execute(update_sql_other)
-    cursor.execute(update_sql_target)
+    cursor.execute(update_sql_other[0], update_sql_other[1])
+    cursor.execute(update_sql_target[0], update_sql_target[1])
 
     conn.commit()
 
@@ -56,14 +56,16 @@ def create_sql_target_row(tareget_id, start_num):
 
     sql_main = ""
 
+    query_params = ()
     for i, id in enumerate(tareget_id):
-        sql_main += f"""
-        when  id = '{id}' then {start_num} + {i}
+        sql_main += """
+        when  id = %s then %s
         """
+        query_params += (id, start_num + i)
 
     sql = sql_part_1st + sql_main + sql_part_last
 
-    return sql
+    return [sql, query_params]
 
 
 def create_sql_other_row(tareget_id_count, start_num, tareget_id_num):
@@ -80,27 +82,32 @@ def create_sql_other_row(tareget_id_count, start_num, tareget_id_num):
     # 残りの行更新用のupdate文
     # 指定の開始番号が1ではない場合
     if start_num > 1:
-        sql_main = f"""
-        when {start_num} <= num and num < {tareget_id_num[0]} then num + {tareget_id_count}
+        sql_main = """
+        when num between %s and %s then num + %s
         """
+        params = [start_num, tareget_id_num[0] - 1, tareget_id_count]
     # 指定の開始順番が1の場合
     elif start_num == 1:
-        sql_main = f"""
-        when num < {tareget_id_num[0]} then num + {tareget_id_count}
+        sql_main = """
+        when num < %s then num + %s
         """
+        params = [tareget_id_num[0], tareget_id_count]
     else:
         raise ValueError("Invalid start num.")
+
+    query_params = tuple(params)
 
     # 残りの行を更新
     for i in range(1, tareget_id_count):
         keisuu = tareget_id_count - i
-        sql_main += f"""
-        when {tareget_id_num[i-1]} < num and num < {tareget_id_num[i]} then num + {keisuu}
+        sql_main += """
+        when num between %s and %s then num + %s
         """
+        query_params += (tareget_id_num[i - 1] + 1, tareget_id_num[i] - 1, keisuu)
 
     sql = sql_part_1st + sql_main + sql_part_last
 
-    return sql
+    return [sql, query_params]
 
 
 if __name__ == "__main__":
