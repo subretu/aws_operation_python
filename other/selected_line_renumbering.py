@@ -32,16 +32,11 @@ def excute_update(tareget_id, tareget_id_count, tareget_id_num, start_num):
     # 残りの行を更新するupdate文を作成
     update_sql_other = create_sql_other_row(tareget_id_count, start_num, tareget_id_num)
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    # 残りの行を更新するupdate文から実行
-    cursor.execute(update_sql_other[0], update_sql_other[1])
-    cursor.execute(update_sql_target[0], update_sql_target[1])
-
-    conn.commit()
-
-    cursor.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            # 残りの行を更新するupdate文から実行
+            curs.execute(update_sql_other[0], update_sql_other[1])
+            curs.execute(update_sql_target[0], update_sql_target[1])
     conn.close()
 
 
@@ -83,9 +78,9 @@ def create_sql_other_row(tareget_id_count, start_num, tareget_id_num):
     # 指定の開始番号が1ではない場合
     if start_num > 1:
         sql_main = """
-        when num between %s and %s then num + %s
+        when num >= %s and num < %s then num + %s
         """
-        params = [start_num, tareget_id_num[0] - 1, tareget_id_count]
+        params = [start_num, tareget_id_num[0], tareget_id_count]
     # 指定の開始順番が1の場合
     elif start_num == 1:
         sql_main = """
@@ -101,9 +96,9 @@ def create_sql_other_row(tareget_id_count, start_num, tareget_id_num):
     for i in range(1, tareget_id_count):
         keisuu = tareget_id_count - i
         sql_main += """
-        when num between %s and %s then num + %s
+        when num > %s and  num < %s then num + %s
         """
-        query_params += (tareget_id_num[i - 1] + 1, tareget_id_num[i] - 1, keisuu)
+        query_params += (tareget_id_num[i - 1], tareget_id_num[i], keisuu)
 
     sql = sql_part_1st + sql_main + sql_part_last
 
