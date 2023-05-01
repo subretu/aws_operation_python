@@ -101,9 +101,5 @@ def link_to_s3object(s3_objects: dict) -> dict:
     return response_data
 
 
-def hogehoge():
-    print("hogehoge")
-
-
 if __name__ == "__main__":
     main()
