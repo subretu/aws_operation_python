@@ -16,11 +16,20 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 def main():
-    mail_address = "sample@example.com"
-    message = create_message(mail_address)
-
+    mail_address_list = ["sample_1@example.com", "sample_2@example.com"]
     sendgird_api_key = "samplekeyhogehoge"
-    send_mail(message, sendgird_api_key)
+    send_mail(sendgird_api_key, mail_address_list)
+
+
+def send_mail(message, sendgird_api_key, mail_address_list):
+    for mail in mail_address_list:
+        try:
+            message = create_message(mail)
+            sg = SendGridAPIClient(sendgird_api_key)
+            response = sg.send(message)
+            print(response.status_code)
+        except Exception as e:
+            print(e)
 
 
 def create_message(mail_address):
@@ -93,16 +102,3 @@ def create_message(mail_address):
         message.attachment = attached_file
 
         return message
-
-
-def send_mail(message, sendgird_api_key):
-    try:
-        sg = SendGridAPIClient(sendgird_api_key)
-        response = sg.send(message)
-        print(response.status_code)
-    except Exception as e:
-        print(e)
-
-
-if __name__ == "__main__":
-    main()
