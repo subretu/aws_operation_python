@@ -16,13 +16,14 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 def main():
-    message = create_message()
+    mail_address = "sample@example.com"
+    message = create_message(mail_address)
 
     sendgird_api_key = "samplekeyhogehoge"
     send_mail(message, sendgird_api_key)
 
 
-def create_message(mailAddress):
+def create_message(mail_address):
     htmlText = """
     {name}様<br><br>
 
@@ -33,7 +34,7 @@ def create_message(mailAddress):
 
     message = Mail(
         from_email="no-reply@example.com",
-        to_emails=mailAddress,
+        to_emails=mail_address,
         subject="【TEST】テスト",
         html_content=textData,
     )
