@@ -1,8 +1,7 @@
 import pytest
-from sendgird_api_sample import create_message
+import sendgird_api_sample
 
 
-# モックデータベース接続クラス
 class MockDatabaseConnection:
     def __enter__(self):
         return self
@@ -14,46 +13,43 @@ class MockDatabaseConnection:
         pass
 
     def execute(self, query):
-        # テスト用のダミーデータを返す
         return
 
     def fetchall(self):
-        # テスト用のダミーデータを返す
         return [
             {"id": 1, "name": "John"},
             {"id": 2, "name": "Alice"},
         ]
 
 
-# テスト用のデータベース接続インスタンスを作成
 mock_db_connection = MockDatabaseConnection()
 
 
-# モックされたSendGridAPIClientクラスを生成
-class MockSendGridAPIClient:
-    def __init__(self, *args, **kwargs):
-        pass
+def test_send_mail(mocker):
+    mock_create_message = mocker.patch("sendgird_api_sample.create_message")
+    mock_create_message.return_value = "Mocked Mail Object"
 
-    def send(self, message):
-        return MockResponse(status_code=202)
+    mock_sendgrid_api_client = mocker.patch("sendgird_api_sample.SendGridAPIClient")
+    mock_sendgrid_instance = mock_sendgrid_api_client.return_value
+    mock_sendgrid_instance.send.return_value = "Success"
+
+    sendgrid_api_key = "mock_sendgrid_api_key"
+    mail_address_list = ["sample_1@example.com", "sample_2@example.com"]
+
+    sendgird_api_sample.send_mail(sendgrid_api_key, mail_address_list)
+
+    mock_create_message.assert_called()
+    mock_sendgrid_instance.send.assert_called()
 
 
-# モックされたレスポンスクラスを生成
-class MockResponse:
-    def __init__(self, status_code):
-        self.status_code = status_code
-
-
-# create_message関数のテスト
 def test_create_message(monkeypatch):
     mail_address = "test@example.com"
 
-    # モックしたデータベース接続をインジェクト
     monkeypatch.setattr(
         "sendgird_api_sample.psycopg2.connect", lambda **kwargs: mock_db_connection
     )
 
-    message = create_message(mail_address)
+    message = sendgird_api_sample.create_message(mail_address)
     print(message)
     assert message is not None
     assert message.from_email.email == "no-reply@example.com"

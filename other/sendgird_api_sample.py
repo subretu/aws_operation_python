@@ -21,7 +21,7 @@ def main():
     send_mail(sendgird_api_key, mail_address_list)
 
 
-def send_mail(message, sendgird_api_key, mail_address_list):
+def send_mail(sendgird_api_key, mail_address_list):
     for mail in mail_address_list:
         try:
             message = create_message(mail)
