@@ -13,25 +13,13 @@ from main.query import (
     get_user_role,
 )
 from main.logger.my_logger import logging_function, set_logger
-from pydantic import BaseModel
+import main.schemas as schemas
 import psycopg2.extras
 
 
 logger = set_logger("uvicorn")
 
 router = APIRouter()
-
-
-class UserList(BaseModel):
-    user_name: str
-    user_id: int
-    company_name: str
-
-
-class RoleList(BaseModel):
-    user_id: int
-    factory_name: str
-    role: str
 
 
 @router.get("/day")
@@ -152,13 +140,13 @@ def get_user_info(request: Request):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     # ユーザー情報を格納
-    result_get_user = [UserList(**x) for x in get_user(cur)]
+    result_get_user = [schemas.UserList(**x) for x in get_user(cur)]
     user_list = []
     for item in result_get_user:
         user_list.append(item.dict())
 
     # ロール情報を格納
-    result_get_user_role = [RoleList(**x) for x in get_user_role(cur)]
+    result_get_user_role = [schemas.RoleList(**x) for x in get_user_role(cur)]
     role_list = []
     for item in result_get_user_role:
         role_list.append(item.dict())
