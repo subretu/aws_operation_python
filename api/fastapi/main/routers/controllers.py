@@ -1,5 +1,5 @@
 from starlette.requests import Request
-from fastapi import Depends, Body, HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter
 from fastapi.responses import JSONResponse
 from main.connection import get_connection
 from main.query import (
@@ -13,7 +13,7 @@ from main.query import (
     get_user_role,
 )
 from main.logger.my_logger import logging_function, set_logger
-from dataclasses import dataclass, asdict
+from pydantic import BaseModel
 import psycopg2.extras
 
 
@@ -22,15 +22,13 @@ logger = set_logger("uvicorn")
 router = APIRouter()
 
 
-@dataclass()
-class UserList:
+class UserList(BaseModel):
     user_name: str
     user_id: int
     company_name: str
 
 
-@dataclass()
-class RoleList:
+class RoleList(BaseModel):
     user_id: int
     factory_name: str
     role: str
@@ -157,13 +155,13 @@ def get_user_info(request: Request):
     result_get_user = [UserList(**x) for x in get_user(cur)]
     user_list = []
     for item in result_get_user:
-        user_list.append(asdict(item))
+        user_list.append(item.dict())
 
     # ロール情報を格納
     result_get_user_role = [RoleList(**x) for x in get_user_role(cur)]
     role_list = []
     for item in result_get_user_role:
-        role_list.append(asdict(item))
+        role_list.append(item.dict())
 
     response_data = []
 
