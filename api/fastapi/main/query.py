@@ -154,7 +154,7 @@ def get_user_role(cur):
     return rows
 
 
-def get_all_member(cur):
+def get_all_member_data(cur):
     cur.execute(f"select member_id, name from members order by member_id;")
     rows = cur.fetchall()
     return rows

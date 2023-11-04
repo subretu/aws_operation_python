@@ -11,7 +11,7 @@ from main.query import (
     get_member_name_data,
     get_user,
     get_user_role,
-    get_all_member,
+    get_all_member_data,
 )
 from main.logger.my_logger import logging_function, set_logger
 import main.schemas as schemas
@@ -171,13 +171,13 @@ def get_user_info(request: Request):
     return JSONResponse(content=response_data)
 
 
-@router.get("/get_all_member")
+@router.get("/all_member")
 @logging_function(logger)
 def get_all_member(request: Request):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-    result = [schemas.MemberList(**x) for x in get_all_member(cur)]
+    result = [schemas.MemberList(**x) for x in get_all_member_data(cur)]
     response_data = []
     for item in result:
         response_data.append(item.dict())
