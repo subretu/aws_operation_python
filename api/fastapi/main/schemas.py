@@ -11,3 +11,8 @@ class RoleList(BaseModel):
     user_id: int
     factory_name: str
     role: str
+
+
+class MemberList(BaseModel):
+    member_id: int
+    name: str
