@@ -16,6 +16,9 @@ from main.query import (
 from main.logger.my_logger import logging_function, set_logger
 import main.schemas as schemas
 import psycopg2.extras
+import base64
+import io
+import csv
 
 
 logger = set_logger("uvicorn")
@@ -189,7 +192,18 @@ def get_all_member(request: Request):
 
 
 @router.post("/uploadcsv")
-def upload_csv(input_data: dict):
-    input_id = int(input_data["id"])
+def upload_csv(data: dict):
+    csv_base64_data = data["file"][0].split(",")[1]
+    decoded_data = base64.b64decode(csv_base64_data)
 
-    print(input_id)
+    csv_data = io.StringIO(decoded_data.decode('utf-8'))
+    csv_reader = csv.reader(csv_data)
+    csv_list = []
+
+    # 数値の場合はintに変換
+    for row in csv_reader:
+        numeric_row = [int(val) if val.replace('-', '', 1).isdigit() else val for val in row]
+        csv_list.append(numeric_row)
+
+    for row in csv_list:
+        print(row)
