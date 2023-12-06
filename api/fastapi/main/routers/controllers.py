@@ -186,3 +186,10 @@ def get_all_member(request: Request):
     conn.close()
 
     return JSONResponse(content=response_data)
+
+
+@router.post("/uploadcsv")
+def upload_csv(input_data: dict):
+    input_id = int(input_data["id"])
+
+    print(input_id)
