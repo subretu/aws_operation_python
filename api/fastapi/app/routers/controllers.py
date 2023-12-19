@@ -1,8 +1,8 @@
 from starlette.requests import Request
 from fastapi import HTTPException, APIRouter
 from fastapi.responses import JSONResponse
-from main.connection import get_connection
-from main.query import (
+from app.connection import get_connection
+from app.query import (
     get_date_summary,
     get_time_summary,
     delete_id,
@@ -13,8 +13,8 @@ from main.query import (
     get_user_role,
     get_all_member_data,
 )
-from main.logger.my_logger import logging_function, set_logger
-import main.schemas as schemas
+from app.logger.my_logger import logging_function, set_logger
+import app.schemas as schemas
 import psycopg2.extras
 import base64
 import io
@@ -196,13 +196,28 @@ def upload_csv(data: dict):
     csv_base64_data = data["file"][0].split(",")[1]
     decoded_data = base64.b64decode(csv_base64_data)
 
-    csv_data = io.StringIO(decoded_data.decode('utf-8'))
+    csv_data = io.StringIO(decoded_data.decode("utf-8"))
     csv_reader = csv.reader(csv_data)
+
     csv_list = []
+
+    skip_first = True
 
     # 数値の場合はintに変換
     for row in csv_reader:
-        numeric_row = [int(val) if val.replace('-', '', 1).isdigit() else val for val in row]
+        if skip_first:
+            csv_list.append(row)
+            skip_first = False
+            continue
+
+        numeric_row = []
+        for val in row:
+            if val.isdigit():
+                numeric_row.append(int(val))
+            else:
+                #raise CsvValueException(value=val)
+                raise ValueError
+
         csv_list.append(numeric_row)
 
     for row in csv_list:
