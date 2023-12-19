@@ -1,11 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.routers.controllers import router as controllers
-
-
-class CsvValueException(Exception):
-    def __init__(self, name: str):
-        self.name = name
+from app.exception.custom_exception import CsvValueException
 
 
 app = FastAPI(
@@ -23,5 +19,3 @@ async def unicorn_exception_handler(request: Request, exc: CsvValueException):
             "message": f"The input '{exc.value}' is in string format. Please convert it to a numeric value."
         },
     )
-
-app.exception_handler(CsvValueException)(unicorn_exception_handler)

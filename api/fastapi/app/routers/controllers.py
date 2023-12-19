@@ -1,6 +1,7 @@
 from starlette.requests import Request
 from fastapi import HTTPException, APIRouter
 from fastapi.responses import JSONResponse
+from app.exception.custom_exception import CsvValueException
 from app.connection import get_connection
 from app.query import (
     get_date_summary,
@@ -192,6 +193,7 @@ def get_all_member(request: Request):
 
 
 @router.post("/uploadcsv")
+@logging_function(logger)
 def upload_csv(data: dict):
     csv_base64_data = data["file"][0].split(",")[1]
     decoded_data = base64.b64decode(csv_base64_data)
@@ -215,8 +217,7 @@ def upload_csv(data: dict):
             if val.isdigit():
                 numeric_row.append(int(val))
             else:
-                #raise CsvValueException(value=val)
-                raise ValueError
+                raise CsvValueException(value=val)
 
         csv_list.append(numeric_row)
 
