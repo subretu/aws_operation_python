@@ -212,14 +212,11 @@ def upload_csv(data: dict):
             skip_first = False
             continue
 
-        numeric_row = []
-        for val in row:
-            if val.isdigit():
-                numeric_row.append(int(val))
-            else:
-                raise CsvValueException(value=val)
+        if row[2].isdigit():
+            row[2] = int(row[2])
+        else:
+            raise CsvValueException(value=row[2])
 
-        csv_list.append(numeric_row)
+        csv_list.append(row)
 
-    for row in csv_list:
-        print(row)
+    print(csv_list)
