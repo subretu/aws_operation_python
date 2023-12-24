@@ -13,6 +13,7 @@ from app.query import (
     get_user,
     get_user_role,
     get_all_member_data,
+    insert_upload_cav_data,
 )
 from app.logger.my_logger import logging_function, set_logger
 import app.schemas as schemas
@@ -208,7 +209,6 @@ def upload_csv(data: dict):
     # 数値の場合はintに変換
     for row in csv_reader:
         if skip_first:
-            csv_list.append(row)
             skip_first = False
             continue
 
@@ -219,4 +219,10 @@ def upload_csv(data: dict):
 
         csv_list.append(row)
 
-    print(csv_list)
+    conn = get_connection()
+    with conn.cursor() as cur:
+        insert_upload_cav_data(conn, cur, csv_list)
+
+        cur.close()
+
+    conn.close()

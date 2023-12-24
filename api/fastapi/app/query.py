@@ -158,3 +158,18 @@ def get_all_member_data(cur):
     cur.execute(f"select member_id, name from members order by member_id;")
     rows = cur.fetchall()
     return rows
+
+
+def insert_upload_cav_data(conn, cur, csv_data):
+    insert_value = ""
+
+    for row in csv_data:
+        insert_value += str(tuple(row)) + ","
+
+    sql = f"""
+    truncate table upload_test;
+    insert into upload_test (part1, part2, value)values {insert_value[:-1]};
+    """
+
+    cur.execute(sql)
+    conn.commit()
