@@ -220,9 +220,15 @@ def upload_csv(data: dict):
         csv_list.append(row)
 
     conn = get_connection()
-    with conn.cursor() as cur:
-        insert_upload_cav_data(conn, cur, csv_list)
+    try:
+        with conn.cursor() as cur:
+            insert_upload_cav_data(conn, cur, csv_list)
 
-        cur.close()
-
-    conn.close()
+            cur.close()
+    except Exception as error:
+        return JSONResponse(
+            status_code=500,
+            content={"message": str(error)},
+        )
+    finally:
+        conn.close()
