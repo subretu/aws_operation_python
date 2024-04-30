@@ -14,6 +14,9 @@ from app.query import (
     get_user_role,
     get_all_member_data,
     insert_upload_cav_data,
+    find_user_id,
+    find_company,
+    insert_user_data,
 )
 from app.logger.my_logger import logging_function, set_logger
 import app.schemas as schemas
@@ -228,7 +231,47 @@ def upload_csv(data: dict):
     except Exception as error:
         return JSONResponse(
             status_code=500,
-            content={"message": str(error)},
+            content={"message": "Data update failed."},
+        )
+    finally:
+        conn.close()
+
+
+@router.post("/register-user")
+@logging_function(logger)
+def register_user(data: dict):
+
+    user_info = schemas.UserForm(
+        last_name=data["data"]["lastName"],
+        first_name=data["data"]["firstName"],
+        email=data["data"]["mailAddress"],
+        company_name=data["data"]["companyName"],
+        role=schemas.Role(
+            user_id=data["data"]["mailAddress"],
+            factory_name=data["data"]["plantName"],
+            role=data["data"]["role"],
+        ),
+    )
+
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            # email(=user_id)が存在する場合はエラー
+            user_id = find_user_id(cur, user_info.email)
+            if user_id is not None:
+                raise  Exception("Email already exists.")
+
+            company_id = find_company(cur, user_info.company_name)
+            user_name = user_info.last_name + user_info.first_name
+
+            insert_user_data(cur, user_name, user_info.email, company_id)
+        conn.commit()  # 問題ない
+
+    except Exception as error:
+        print(error)
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Data update failed."},
         )
     finally:
         conn.close()

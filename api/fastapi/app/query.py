@@ -173,3 +173,57 @@ def insert_upload_cav_data(conn, cur, csv_data):
 
     cur.execute(sql)
     conn.commit()
+
+
+def find_user_id(cur, email):
+    sql = f"""
+    select
+	    user_id
+    from
+        public.user2
+    where
+        user_id = '{email}'
+    ;
+    """
+
+    cur.execute(sql)
+    rows = cur.fetchone()
+    return rows
+
+
+def find_company(cur, company_name):
+    sql = f"""
+    select
+	    id
+    from
+        public.company
+    where
+        company_name = '{company_name}'
+    ;
+    """
+
+    sql2 = f"""
+    select
+	    max(id)
+    from
+        public.company
+    ;
+    """
+
+    cur.execute(sql)
+    rows = cur.fetchone()
+
+    if rows == None:
+        cur.execute(sql2)
+        row = cur.fetchone()
+        return row[0] + 1
+    else:
+        return rows[0]
+
+
+def insert_user_data(cur, user_name, email, company_id):
+    sql = f"""
+    insert into public.user2 (user_id, user_name, company_id) values ('{email}', '{user_name}', {company_id});
+    """
+
+    cur.execute(sql)
