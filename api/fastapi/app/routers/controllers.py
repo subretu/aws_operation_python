@@ -240,6 +240,7 @@ def upload_csv(data: dict):
 @router.post("/register-user")
 @logging_function(logger)
 def register_user(data: dict):
+    print
 
     user_info = schemas.UserForm(
         last_name=data["data"]["lastName"],
@@ -259,14 +260,13 @@ def register_user(data: dict):
             # email(=user_id)が存在する場合はエラー
             user_id = find_user_id(cur, user_info.email)
             if user_id is not None:
-                raise  Exception("Email already exists.")
+                raise Exception
 
             company_id = find_company(cur, user_info.company_name)
             user_name = user_info.last_name + user_info.first_name
 
             insert_user_data(cur, user_name, user_info.email, company_id)
-        conn.commit()  # 問題ない
-
+            conn.commit()
     except Exception as error:
         print(error)
         return JSONResponse(

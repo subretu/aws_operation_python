@@ -213,7 +213,7 @@ def find_company(cur, company_name):
     cur.execute(sql)
     rows = cur.fetchone()
 
-    if rows == None:
+    if rows is None:
         cur.execute(sql2)
         row = cur.fetchone()
         return row[0] + 1
