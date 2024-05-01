@@ -59,13 +59,12 @@ def logging_function(logger):
         @wraps(func)
         def wrapper(*args, **kwargs):
             func_name = func.__name__
-            func_result = func(*args, **kwargs)
+            #func_result = func(*args, **kwargs)
             # loggerで使用するためにfuncに関する情報をdict化
             extra = {
                 "real_filename": inspect.getfile(func),
                 "real_funcName": func_name,
                 "real_lineno": inspect.currentframe().f_back.f_lineno,
-                "real_result": func_result,
             }
 
             logger.info(f"[START] {func_name}", extra=extra)
