@@ -214,16 +214,25 @@ def find_company(cur, company_name):
     rows = cur.fetchone()
 
     if rows is None:
+        # 既に会社が存在する場合は現在のIDに+1する
         cur.execute(sql2)
         row = cur.fetchone()
-        return row[0] + 1
+        return False, row[0] + 1
     else:
-        return rows[0]
+        return True, rows[0]
 
 
 def insert_user_data(cur, user_name, email, company_id):
     sql = f"""
     insert into public.user2 (user_id, user_name, company_id) values ('{email}', '{user_name}', {company_id});
+    """
+
+    cur.execute(sql)
+
+
+def insert_company_data(cur, id, company_name):
+    sql = f"""
+    insert into company (id, company_name) values ({id}, '{company_name}');
     """
 
     cur.execute(sql)

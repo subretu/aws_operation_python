@@ -17,6 +17,7 @@ from app.query import (
     find_user_id,
     find_company,
     insert_user_data,
+    insert_company_data,
 )
 from app.logger.my_logger import logging_function, set_logger
 import app.schemas as schemas
@@ -257,15 +258,24 @@ def register_user(data: dict):
     conn = get_connection()
     try:
         with conn.cursor() as cur:
-            # email(=user_id)が存在する場合はエラー
-            user_id = find_user_id(cur, user_info.email)
-            if user_id is not None:
+            # user_id（email）が存在する場合は登録しない
+            if find_user_id(cur, user_info.email) is not None:
                 raise Exception
 
-            company_id = find_company(cur, user_info.company_name)
-            user_name = user_info.last_name + user_info.first_name
+            # 会社IDを取得（既存の会社かどうかも取得）
+            is_exist_company, company_id = find_company(cur, user_info.company_name)
 
-            insert_user_data(cur, user_name, user_info.email, company_id)
+            insert_user_data(
+                cur,
+                (user_info.last_name + user_info.first_name),
+                user_info.email,
+                company_id,
+            )
+
+            # 新規の会社の場合は登録
+            if not is_exist_company:
+                insert_company_data(cur, company_id, user_info.company_name)
+
             conn.commit()
     except Exception as error:
         print(error)
