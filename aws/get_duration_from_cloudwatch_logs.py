@@ -26,19 +26,11 @@ def main():
 
     results = get_query_results(client=client, query_id=query_id)
 
-    # 暫定で最後の実行から抽出するようにした
-    # 配列の最後の要素を取得
-    last_element = results[-1]
-    # Lambdaの統計情報は基本的には最後に出るはず
-    log_entry = last_element[1]["value"]
+    duration_sum, count = extract_durations(results=results)
 
-    # 正規表現でDurationの数値を抽出
-    duration_match = re.search(r"Duration: (\d+\.\d+) ms", log_entry)
-    if duration_match:
-        duration = duration_match.group(1)
-        print(f"{duration}")
-    else:
-        print("Duration not found")
+    print(
+        f"Total Duration: {duration_sum} ms, Count: {count}, Average Duration: {duration_sum/count}"
+    )
 
 
 def start_query(client: BaseClient) -> str:
@@ -67,6 +59,29 @@ def get_query_results(client: BaseClient, query_id: str) -> list[dict]:
 
         if resp["status"] == "Complete":
             return resp["results"]
+
+
+def extract_durations(results: list):
+    duration_sum = 0
+    count = 0
+
+    for result in results:
+        # 基本的には@messageは2つ目に出力される
+        log_entry = result[1]
+
+        if log_entry["field"] == "@message":
+            value = log_entry["value"]
+
+            # 正規表現でDurationの数値を抽出
+            duration_match = re.search(r"Duration: (\d+\.\d+) ms", value)
+            if duration_match:
+                duration = duration_match.group(1)
+                duration_sum += float(duration)
+                count += 1
+        else:
+            print("No @message")
+
+    return duration_sum, count
 
 
 if __name__ == "__main__":
